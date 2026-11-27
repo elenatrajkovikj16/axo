@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setDefaultDate();
     setDefaultTankDate();
     loadFromLocalStorage();
+    // Ensure currentMonth is a Date object
+    if (typeof appState.currentMonth === 'string') {
+        appState.currentMonth = new Date(appState.currentMonth);
+    }
 });
 
 // ==================== LOGIN ====================
@@ -386,7 +390,7 @@ async function addFeedingToSheet(feeding) {
         const values = [[feeding.date, feeding.foodType, feeding.amount]];
 
         const response = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${range}:append?key=${CONFIG.API_KEY}`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${range}:append?key=${CONFIG.API_KEY}&insertDataOption=INSERT_ROWS`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -394,8 +398,11 @@ async function addFeedingToSheet(feeding) {
             }
         );
 
+        const data = await response.json();
         if (!response.ok) {
-            console.error('Failed to save to Google Sheets');
+            console.error('Failed to save feeding to Google Sheets:', data);
+        } else {
+            console.log('Feeding saved to Google Sheets ✅');
         }
     } catch (error) {
         console.error('Error adding feeding to sheet:', error);
@@ -408,7 +415,7 @@ async function addTankLogToSheet(tankLog) {
         const values = [[tankLog.date, tankLog.looks, tankLog.happiness, tankLog.activity, tankLog.notes]];
 
         const response = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${range}:append?key=${CONFIG.API_KEY}`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${range}:append?key=${CONFIG.API_KEY}&insertDataOption=INSERT_ROWS`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -416,8 +423,11 @@ async function addTankLogToSheet(tankLog) {
             }
         );
 
+        const data = await response.json();
         if (!response.ok) {
-            console.error('Failed to save to Google Sheets');
+            console.error('Failed to save tank log to Google Sheets:', data);
+        } else {
+            console.log('Tank log saved to Google Sheets ✅');
         }
     } catch (error) {
         console.error('Error adding tank log to sheet:', error);
@@ -426,11 +436,11 @@ async function addTankLogToSheet(tankLog) {
 
 async function saveAxolotlNameToSheet(name) {
     try {
-        const range = `${CONFIG.SHEETS.AXOLOTL}!A1`;
+        const range = `${CONFIG.SHEETS.AXOLOTL}!A1:B1`;
         const values = [['AxolotlName', name]];
 
         const response = await fetch(
-            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${range}?key=${CONFIG.API_KEY}`,
+            `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SHEET_ID}/values/${range}?key=${CONFIG.API_KEY}&valueInputOption=RAW`,
             {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -438,8 +448,11 @@ async function saveAxolotlNameToSheet(name) {
             }
         );
 
+        const data = await response.json();
         if (!response.ok) {
-            console.error('Failed to save to Google Sheets');
+            console.error('Failed to save axolotl name to Google Sheets:', data);
+        } else {
+            console.log('Axolotl name saved to Google Sheets ✅');
         }
     } catch (error) {
         console.error('Error saving axolotl name to sheet:', error);
