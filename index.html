@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axolotl Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🦑 Axolotl Tracker</h1>
+                <p>Manage your axolotl's care</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <p id="loginError" class="error"></p>
+            </form>
+        </div>
+    </body>
+</div>
+
+    <!-- Main App -->
+    <div id="appScreen" class="screen">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <span class="logo">🦑 Axolotl</span>
+                <div class="nav-tabs">
+                    <button class="nav-btn active" onclick="showTab('dashboard')">📅 Dashboard</button>
+                    <button class="nav-btn" onclick="showTab('feeding')">🍽️ Feed</button>
+                    <button class="nav-btn" onclick="showTab('tank')">🏠 Tank</button>
+                    <button class="nav-btn" onclick="showTab('analytics')">📊 Stats</button>
+                    <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="container">
+                <h2>Welcome! 👋</h2>
+                <div class="axolotl-name-display">
+                    <p>Your axolotl: <strong id="axolotlNameDisplay">Unnamed</strong></p>
+                    <button class="btn-secondary" onclick="showTab('settings')">Change name</button>
+                </div>
+
+                <h3>Feeding Calendar</h3>
+                <div class="calendar-wrapper">
+                    <div class="calendar-header">
+                        <button onclick="previousMonth()">◀</button>
+                        <h3 id="currentMonth"></h3>
+                        <button onclick="nextMonth()">▶</button>
+                    </div>
+                    <div id="calendar" class="calendar"></div>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <span class="stat-label">Fed This Month</span>
+                        <span class="stat-value" id="monthFedCount">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Last Fed</span>
+                        <span class="stat-value" id="lastFedDate">Never</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feeding Tab -->
+        <div id="feeding" class="tab-content">
+            <div class="container">
+                <h2>🍽️ Log Feeding</h2>
+                <form id="feedingForm" onsubmit="saveFeed(event)">
+                    <div class="form-group">
+                        <label for="feedDate">Date</label>
+                        <input type="date" id="feedDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="foodType">Food Type</label>
+                        <select id="foodType" required>
+                            <option value="">Select food type...</option>
+                            <option value="Frozen worms">Frozen worms</option>
+                            <option value="Live worms">Live worms</option>
+                            <option value="Bloodworms">Bloodworms</option>
+                            <option value="Salmon pellets">Salmon pellets</option>
+                            <option value="Earthworms">Earthworms</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="feedAmount">Amount</label>
+                        <input type="number" id="feedAmount" min="1" placeholder="e.g., 5" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Log Feeding</button>
+                    <p id="feedStatus" class="status"></p>
+                </form>
+
+                <h3>Recent Feedings</h3>
+                <div id="recentFeeds" class="feed-list"></div>
+            </div>
+        </div>
+
+        <!-- Tank Tab -->
+        <div id="tank" class="tab-content">
+            <div class="container">
+                <h2>🏠 Tank Status</h2>
+                <form id="tankForm" onsubmit="saveTank(event)">
+                    <div class="form-group">
+                        <label for="tankDate">Date</label>
+                        <input type="date" id="tankDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tankLooks">Looks</label>
+                        <select id="tankLooks" required>
+                            <option value="">Select...</option>
+                            <option value="Great">Great ✨</option>
+                            <option value="Good">Good 👍</option>
+                            <option value="Fair">Fair 😐</option>
+                            <option value="Poor">Poor 😟</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tankHappiness">Happiness</label>
+                        <select id="tankHappiness" required>
+                            <option value="">Select...</option>
+                            <option value="Very Happy">Very Happy 😊</option>
+                            <option value="Happy">Happy 🙂</option>
+                            <option value="Neutral">Neutral 😐</option>
+                            <option value="Unhappy">Unhappy 😞</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tankActivity">Activity Level</label>
+                        <select id="tankActivity" required>
+                            <option value="">Select...</option>
+                            <option value="Very Active">Very Active 🏃</option>
+                            <option value="Active">Active 🚶</option>
+                            <option value="Calm">Calm 😴</option>
+                            <option value="Lethargic">Lethargic 😴💤</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tankNotes">Notes</label>
+                        <textarea id="tankNotes" placeholder="Any observations..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Save Tank Status</button>
+                    <p id="tankStatus" class="status"></p>
+                </form>
+
+                <h3>Recent Tank Logs</h3>
+                <div id="recentTankLogs" class="log-list"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="container">
+                <h2>📊 Analytics</h2>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Total Feedings</h3>
+                        <p class="analytics-value" id="totalFeedings">0</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Avg Feedings/Week</h3>
+                        <p class="analytics-value" id="avgFeedingsWeek">0</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Most Fed Food</h3>
+                        <p class="analytics-value" id="mostFedFood">-</p>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Tank Avg Happiness</h3>
+                        <p class="analytics-value" id="avgHappiness">-</p>
+                    </div>
+                </div>
+
+                <h3>Feeding Breakdown</h3>
+                <div id="feedingBreakdown" class="chart-container"></div>
+
+                <h3>Happiness Trend</h3>
+                <div id="happinessTrend" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="container">
+                <h2>⚙️ Settings</h2>
+                <form id="settingsForm" onsubmit="saveAxolotlName(event)">
+                    <div class="form-group">
+                        <label for="axolotlName">Your Axolotl's Name</label>
+                        <input type="text" id="axolotlName" placeholder="e.g., Bubbles" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Save Name</button>
+                    <p id="settingsStatus" class="status"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
