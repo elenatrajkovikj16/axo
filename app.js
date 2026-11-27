@@ -460,10 +460,13 @@ async function saveAxolotlNameToSheet(name) {
 }
 
 async function loadAllData() {
-    // Try to load from Google Sheets
-    await loadFeedingsFromSheet();
-    await loadTankLogsFromSheet();
-    await loadAxolotlNameFromSheet();
+    // Try to load from Google Sheets first (optional, won't block if fails)
+    // await loadFeedingsFromSheet();
+    // await loadTankLogsFromSheet();
+    // await loadAxolotlNameFromSheet();
+    
+    // Load from localStorage (this is the main source now)
+    console.log('Loading data from local storage...');
 }
 
 async function loadFeedingsFromSheet() {
