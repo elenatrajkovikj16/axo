@@ -84,18 +84,23 @@ function saveFeed(event) {
     const foodType = document.getElementById('foodType').value;
     const amount = parseInt(document.getElementById('feedAmount').value);
 
-    const feeding = { date, foodType, amount };
-    appState.feedings.push(feeding);
-
-    // Add to Google Sheets
-    addFeedingToSheet(feeding);
+    // Check if editing
+    if (document.getElementById('feedingForm').dataset.editing === 'true') {
+        const editIndex = parseInt(document.getElementById('feedingForm').dataset.editIndex);
+        appState.feedings[editIndex] = { date, foodType, amount };
+        document.getElementById('feedingForm').dataset.editing = 'false';
+        document.getElementById('feedingForm').dataset.editIndex = '';
+        showStatus('feedStatus', '✅ Feeding updated!', 'success');
+    } else {
+        const feeding = { date, foodType, amount };
+        appState.feedings.push(feeding);
+        showStatus('feedStatus', '✅ Feeding logged!', 'success');
+    }
 
     // Reset form
     document.getElementById('feedingForm').reset();
     setDefaultDate();
 
-    // Show success
-    showStatus('feedStatus', 'Feeding logged! ✅', 'success');
     updateDashboard();
     updateRecentFeeds();
 
@@ -113,16 +118,49 @@ function updateRecentFeeds() {
         return;
     }
 
-    recentFeeds.forEach(feed => {
+    recentFeeds.forEach((feed, index) => {
+        const actualIndex = appState.feedings.length - 1 - index;
         const feedItem = document.createElement('div');
         feedItem.className = 'feed-item';
         feedItem.innerHTML = `
-            <div class="feed-item-date">${formatDate(feed.date)}</div>
-            <div class="feed-item-type"><strong>${feed.foodType}</strong></div>
-            <div class="feed-item-amount">Amount: ${feed.amount}</div>
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <div class="feed-item-date">${formatDate(feed.date)}</div>
+                    <div class="feed-item-type"><strong>${feed.foodType}</strong></div>
+                    <div class="feed-item-amount">Amount: ${feed.amount}</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-edit" onclick="editFeeding(${actualIndex})">✏️</button>
+                    <button class="btn-delete" onclick="deleteFeeding(${actualIndex})">🗑️</button>
+                </div>
+            </div>
         `;
         feedList.appendChild(feedItem);
     });
+}
+
+function editFeeding(index) {
+    const feeding = appState.feedings[index];
+    document.getElementById('feedDate').value = feeding.date;
+    document.getElementById('foodType').value = feeding.foodType;
+    document.getElementById('feedAmount').value = feeding.amount;
+    
+    // Set a flag so we know we're editing
+    document.getElementById('feedingForm').dataset.editIndex = index;
+    document.getElementById('feedingForm').dataset.editing = 'true';
+    
+    // Scroll to form
+    document.getElementById('feedingForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function deleteFeeding(index) {
+    if (confirm('Delete this feeding log?')) {
+        appState.feedings.splice(index, 1);
+        saveToLocalStorage();
+        updateRecentFeeds();
+        updateDashboard();
+        showStatus('feedStatus', '🗑️ Feeding deleted', 'success');
+    }
 }
 
 // ==================== TANK FUNCTIONS ====================
@@ -140,18 +178,23 @@ function saveTank(event) {
     const activity = document.getElementById('tankActivity').value;
     const notes = document.getElementById('tankNotes').value;
 
-    const tankLog = { date, looks, happiness, activity, notes };
-    appState.tankLogs.push(tankLog);
-
-    // Add to Google Sheets
-    addTankLogToSheet(tankLog);
+    // Check if editing
+    if (document.getElementById('tankForm').dataset.editing === 'true') {
+        const editIndex = parseInt(document.getElementById('tankForm').dataset.editIndex);
+        appState.tankLogs[editIndex] = { date, looks, happiness, activity, notes };
+        document.getElementById('tankForm').dataset.editing = 'false';
+        document.getElementById('tankForm').dataset.editIndex = '';
+        showStatus('tankStatus', '✅ Tank log updated!', 'success');
+    } else {
+        const tankLog = { date, looks, happiness, activity, notes };
+        appState.tankLogs.push(tankLog);
+        showStatus('tankStatus', '✅ Tank status saved!', 'success');
+    }
 
     // Reset form
     document.getElementById('tankForm').reset();
     setDefaultTankDate();
 
-    // Show success
-    showStatus('tankStatus', 'Tank status saved! ✅', 'success');
     updateRecentTankLogs();
 
     // Save to local storage
@@ -168,20 +211,54 @@ function updateRecentTankLogs() {
         return;
     }
 
-    recentLogs.forEach(log => {
+    recentLogs.forEach((log, index) => {
+        const actualIndex = appState.tankLogs.length - 1 - index;
         const logItem = document.createElement('div');
         logItem.className = 'log-item';
         logItem.innerHTML = `
-            <div class="log-item-date">${formatDate(log.date)}</div>
-            <div class="log-item-type">
-                <strong>Looks:</strong> ${log.looks} | 
-                <strong>Happiness:</strong> ${log.happiness} | 
-                <strong>Activity:</strong> ${log.activity}
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <div class="log-item-date">${formatDate(log.date)}</div>
+                    <div class="log-item-type">
+                        <strong>Looks:</strong> ${log.looks} | 
+                        <strong>Happiness:</strong> ${log.happiness} | 
+                        <strong>Activity:</strong> ${log.activity}
+                    </div>
+                    ${log.notes ? `<div class="log-item-amount">📝 ${log.notes}</div>` : ''}
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-edit" onclick="editTankLog(${actualIndex})">✏️</button>
+                    <button class="btn-delete" onclick="deleteTankLog(${actualIndex})">🗑️</button>
+                </div>
             </div>
-            ${log.notes ? `<div class="log-item-amount">📝 ${log.notes}</div>` : ''}
         `;
         logList.appendChild(logItem);
     });
+}
+
+function editTankLog(index) {
+    const log = appState.tankLogs[index];
+    document.getElementById('tankDate').value = log.date;
+    document.getElementById('tankLooks').value = log.looks;
+    document.getElementById('tankHappiness').value = log.happiness;
+    document.getElementById('tankActivity').value = log.activity;
+    document.getElementById('tankNotes').value = log.notes;
+    
+    // Set a flag so we know we're editing
+    document.getElementById('tankForm').dataset.editIndex = index;
+    document.getElementById('tankForm').dataset.editing = 'true';
+    
+    // Scroll to form
+    document.getElementById('tankForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function deleteTankLog(index) {
+    if (confirm('Delete this tank log?')) {
+        appState.tankLogs.splice(index, 1);
+        saveToLocalStorage();
+        updateRecentTankLogs();
+        showStatus('tankStatus', '🗑️ Tank log deleted', 'success');
+    }
 }
 
 // ==================== SETTINGS ====================
@@ -197,8 +274,9 @@ function saveAxolotlName(event) {
     appState.axolotlName = name;
     document.getElementById('axolotlNameDisplay').textContent = name;
 
-    // Save to Google Sheets
-    saveAxolotlNameToSheet(name);
+    // Note: Google Sheets write requires OAuth - API key only allows reads
+    // Data is saved to localStorage instead
+
     saveToLocalStorage();
 
     showStatus('settingsStatus', `${name} is ready! 🦑`, 'success');
