@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof appState.currentMonth === 'string') {
         appState.currentMonth = new Date(appState.currentMonth);
     }
+    // Hide navbar on startup (show login)
+    document.getElementById('navbar').style.display = 'none';
 });
 
 // ==================== LOGIN ====================
@@ -29,6 +31,7 @@ function handleLogin(event) {
         appState.isLoggedIn = true;
         document.getElementById('loginScreen').classList.remove('active');
         document.getElementById('appScreen').classList.add('active');
+        document.getElementById('navbar').style.display = 'block';
         saveToLocalStorage();
         loadAllData();
         updateDashboard();
@@ -41,6 +44,7 @@ function logout() {
     appState.isLoggedIn = false;
     document.getElementById('appScreen').classList.remove('active');
     document.getElementById('loginScreen').classList.add('active');
+    document.getElementById('navbar').style.display = 'none';
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
     document.getElementById('loginError').textContent = '';

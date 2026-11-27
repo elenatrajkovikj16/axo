@@ -4,47 +4,90 @@
     box-sizing: border-box;
 }
 
-:root {
-    --primary: #0ea5e9;
-    --primary-dark: #0284c7;
-    --accent: #06b6d4;
-    --light: #e0f2fe;
-    --bg: #f0f9ff;
-    --text: #0c4a6e;
-    --success: #10b981;
-    --error: #ef4444;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+html {
+    height: 100%;
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #e0f2fe 0%, #cffafe 100%);
     color: var(--text);
-    min-height: 100vh;
-    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     padding: 0;
     margin: 0;
 }
 
+/* NAVBAR - ALWAYS VISIBLE */
+.navbar {
+    background: white;
+    border-bottom: 3px solid var(--primary);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    padding: max(10px, env(safe-area-inset-top)) 10px 10px 10px;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.logo {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nav-btn {
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.3em;
+    color: #64748b;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.nav-btn:hover {
+    color: var(--primary);
+}
+
+/* MAIN CONTENT AREA */
 .screen {
     display: none;
-    width: 100%;
-    height: 100vh;
+    flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0;
-    margin: 0;
 }
 
 .screen.active {
     display: flex;
     flex-direction: column;
-}
-
-/* LOGIN SCREEN */
-#loginScreen {
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
 }
 
 .login-container {
